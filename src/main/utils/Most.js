@@ -1,7 +1,8 @@
 const { io } = require("socket.io-client");
 const EventEmitter = require('events')
 const dgram = require("dgram");
-import { Registry } from './Registry'
+import { ErrorParser } from './ErrorParser'
+import { Parser } from './Parser'
 
 export class Most extends EventEmitter {
   constructor(win) {
@@ -10,8 +11,9 @@ export class Most extends EventEmitter {
     this.findServer = null
     this.appState = 1
     this.message = new Buffer('Server?')
-    this.registry = new Registry()
+    this.parser = new Parser()
     this.win = win
+    this.errorParser = new ErrorParser()
     this.socket = dgram.createSocket('udp4')
     this.socket.bind('8889')
     //Socket Listeners
@@ -24,16 +26,36 @@ export class Most extends EventEmitter {
       }, 5000)
     })
     this.socket.on('message', (message, remote) => {
-      console.log('Found Most Explorer Server')
       this.updateAppState(3)
       clearInterval(this.findServer)
       this.socketIo = io('ws://' + remote.address + ':5556')
 
       this.socketIo.on('message', (data) => {
-        data.fktID === 2561 ? this.registry.parseMessage(data) : null
-        let messageOut = { ...data }
-        messageOut.data = [...data.data]
-        this.win?.webContents.send('newMessage', messageOut)
+        console.log("new message", data)
+        if (data.opType === 0x0f) {
+          try {
+            this.win?.webContents.send('error', this.errorParser.parseError(data))
+          } catch {
+            this.win?.webContents.send('error', 'Undefined Error' + JSON.stringify(message))
+          }
+        } else {
+          //Parse used functions to relevant data
+          switch (data.fktID) {
+            case 2561:
+              this.parser.parseMessage(data, data.fktID)
+              break
+            case 0:
+              console.log(data)
+              data.fBlockID > 1 ? this.parser.parseMessage(data, data.fktID) : null
+          }
+          let messageOut = { ...data }
+          messageOut.data = [...data.data]
+          this.win?.webContents.send('newMessage', messageOut)
+        }
+      })
+
+      this.socketIo.on('allocResults', (data) => {
+
       })
 
       this.socketIo.on('disconnect', () => {
@@ -44,8 +66,12 @@ export class Most extends EventEmitter {
       })
     })
 
-    this.registry.on('registryComplete', (data) => {
+    this.parser.on('registryComplete', (data) => {
       this.win?.webContents.send('registryUpdate', data)
+    })
+
+    this.parser.on('functions', (data) => {
+      this.win?.webContents.send('functions', data)
     })
   }
 
@@ -58,9 +84,20 @@ export class Most extends EventEmitter {
     this.socketIo?.emit('requestRegistry')
   }
 
+  sendControlMessage(data) {
+    this.socketIo?.emit('sendControlMessage', data)
+  }
+
   getSource(connectionLabel = 0) {
     this.socketIo?.emit('getSource', { connectionLabel })
   }
+
+  allocate() {
+    this.socketIo?.emit('allocate')
+  }
+
+  stream(data) {
+    console.log("streaming")
+    this.socketIo?.emit('stream', data)
+  }
 }
-
-

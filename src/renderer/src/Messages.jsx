@@ -43,7 +43,7 @@ export default function Messages({messages}) {
             </Grid>
             <Grid xs={13}>
                 <Typography style={{color: '#2596be', display: 'inline'}}>Data: </Typography>
-                <Typography style={{color: '#2596be', display: 'inline'}}>{f.data.slice(5).map(d => d2h(d))}</Typography>
+                <Typography style={{color: '#2596be', display: 'inline'}}>{f.data.slice(0).map(d => d2h(d))}</Typography>
             </Grid>
         </Grid>)
         return m.length > 100 ? m.slice(0, 100) : m
