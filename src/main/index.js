@@ -7,8 +7,8 @@ let most
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1200,
+    height: 900,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -56,6 +56,9 @@ app.whenReady().then(() => {
   createWindow()
   ipcMain.handle('requestRegistry', getRegistry)
   ipcMain.handle('getSource', getSource)
+  ipcMain.handle('sendMessage', sendMessage)
+  ipcMain.handle('allocate', allocate)
+  ipcMain.handle('stream', stream)
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -69,6 +72,21 @@ const getRegistry = () => {
 
 const getSource = () => {
   most?.getSource()
+}
+
+const allocate = () => {
+  console.log('allocating')
+  most?.allocate()
+}
+
+const sendMessage = (sender, message) => {
+  console.log("send message request: ", message)
+  most.sendControlMessage(message)
+}
+
+const stream = (sender, message) => {
+  console.log("requesting stream", message)
+  most?.stream(message)
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common
