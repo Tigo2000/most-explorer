@@ -1,7 +1,7 @@
 {
   "name": "most-explorer",
-  "version": "1.0.1",
-  "description": "An Electron application with React",
+  "version": "1.0.2",
+  "description": "Most Exploroer app",
   "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://www.electronjs.org",
