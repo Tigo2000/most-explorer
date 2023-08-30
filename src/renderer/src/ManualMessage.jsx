@@ -104,6 +104,15 @@ export default function ManualMessage({ fBlock }) {
     })
   }
 
+  const addBytes = () => {
+    let currentBytes = Object.keys(bytes).length
+    let tempBytes = {...bytes}
+    for (let i = currentBytes; i < currentBytes + 11; i++) {
+      tempBytes[i] = -1
+    }
+    setBytes(tempBytes)
+  }
+
   return (
     <Box sx={{ minHeight: '50%' }}>
       <Grid container spacing={2} sx={{ minHeight: '100%' }}>
@@ -159,6 +168,9 @@ export default function ManualMessage({ fBlock }) {
             </Button>
             <Button variant={'outlined'} color={'secondary'} onClick={() => setStream(true)}>
               Stream
+            </Button>
+            <Button variant={'outlined'} color={'secondary'} onClick={() => addBytes()}>
+              Add More Bytes
             </Button>
           </Box>
         </Grid>
