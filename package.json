@@ -1,6 +1,6 @@
 {
   "name": "most-explorer",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -17,7 +17,8 @@
     "postinstall": "electron-builder install-app-deps",
     "build:win": "npm run build && electron-builder --win --config",
     "build:mac": "electron-vite build && electron-builder --mac --config",
-    "build:linux": "electron-vite build && electron-builder --linux --config"
+    "build:linux": "electron-vite build && electron-builder --linux --config",
+    "build:armLinux": "electron-vite build && electron-builder --linux AppImage --arm64 --armv7l --config"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^2.0.0",
@@ -27,6 +28,7 @@
     "@fontsource/roboto": "^5.0.8",
     "@mui/icons-material": "^5.14.9",
     "@mui/material": "^5.14.9",
+    "buffer": "^6.0.3",
     "electron-typescript-ipc": "^3.0.0",
     "react-router-dom": "^6.16.0",
     "react-window-ui": "^2.2.0",
