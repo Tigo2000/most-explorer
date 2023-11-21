@@ -21,6 +21,7 @@ export class Parser extends EventEmitter {
   }
 
   parseMessage(data: SocketMostMessageRx, fkt: number): void {
+    console.log("parsing message", data)
     if (data.telID === 1) {
       this.registry = {}
       this.dataType = fkt
@@ -42,6 +43,7 @@ export class Parser extends EventEmitter {
       this.messageInProg = false
       switch (this.dataType) {
         case 2561:
+          console.log("found registry")
           this.parseRegistry()
           break
         case 0:
@@ -75,6 +77,7 @@ export class Parser extends EventEmitter {
   }
 
   protected parseRegistry(): void {
+    console.log("parsing registry")
     for (let i = 0; i < this.finalData!.length; i += 4) {
       const tempFblockID = this.finalData!.readUInt8(i + 2)
       const readableName = tempFblockID in fBlocks ? fBlocks[tempFblockID] : tempFblockID
@@ -91,7 +94,7 @@ export class Parser extends EventEmitter {
   }
 
   parseFktIDs(): void {
-    console.log("parsing dkts", this.finalData)
+    console.log("parsing fkts", this.finalData)
     const functions: string[] = []
     for (let i = 0; i < this.finalData!.length - 1; i += 3) {
       functions.push((this.finalData!.readUint16BE(i) >> 4).toString(16))

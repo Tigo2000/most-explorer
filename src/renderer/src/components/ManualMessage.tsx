@@ -16,6 +16,7 @@ const opTypes = {
   0x03: 'Increment',
   0x04: 'Decrement',
   0x05: 'GetInterface',
+  0x06: 'StartResultAck',
   0x09: 'ErrorAck',
   0x0c: 'Status',
   0x0e: 'Interface',
@@ -62,7 +63,7 @@ const ManualMessage: React.FC<Props> = ({ fBlock }) => {
   }
 
   const sendControlMessage = (data: MostMessage | null = null): void => {
-    console.log('sending control message')
+    console.log('sending control message', fktId)
     let message
     if (data) {
       message = {
@@ -70,7 +71,7 @@ const ManualMessage: React.FC<Props> = ({ fBlock }) => {
         targetAddressLow: fBlock.targetAddressLow,
         fBlockID: fBlock.fBlockID,
         instanceID: fBlock.instanceID,
-        fktId: data.fktID,
+        fktID: data.fktID,
         opType: data.opType,
         data: []
       }
@@ -80,7 +81,7 @@ const ManualMessage: React.FC<Props> = ({ fBlock }) => {
         targetAddressLow: fBlock.targetAddressLow,
         fBlockID: fBlock.fBlockID,
         instanceID: fBlock.instanceID,
-        fktId: parseInt(fktId),
+        fktID: parseInt(fktId),
         opType: parseInt(opType!),
         data: []
       }

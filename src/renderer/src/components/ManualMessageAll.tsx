@@ -16,6 +16,7 @@ const opTypes = {
   0x03: 'Increment',
   0x04: 'Decrement',
   0x05: 'GetInterface',
+  0x06: 'StartResultAck',
   0x09: 'ErrorAck',
   0x0c: 'Status',
   0x0e: 'Interface',
@@ -70,7 +71,7 @@ const ManualMessageAll: React.FC<Props> = () => {
         targetAddressLow: parseInt(targetAddressLow),
         fBlockID: parseInt(fBlockID),
         instanceID: parseInt(instanceID),
-        fktId: parseInt(fktID),
+        fktID: parseInt(fktID),
         opType: parseInt(opType),
         data: []
       }

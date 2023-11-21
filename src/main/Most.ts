@@ -32,6 +32,12 @@ export class Most extends EventEmitter {
     this.dgram.on('listening', () => {
       this.updateAppState(AppState.waitingForServer)
     })
+    this.dgram.on('close', () => {
+      console.log("dgram closed")
+    })
+    this.dgram.on('error', () => {
+      console.log("dgram error")
+    })
     this.dgram.on('serverFound', (address: string) => {
       this.socket = io(`ws://${address}:5556`)
       this.updateAppState(AppState.connectingToSocket)
@@ -46,12 +52,12 @@ export class Most extends EventEmitter {
           //Parse used functions to relevant data
           switch (message.fktID) {
             case 2561:
+              console.log("reg update")
               this.parser.parseMessage(message, message.fktID)
               break
             case 0:
               message.fBlockID > 1 ? this.parser.parseMessage(message, message.fktID) : null
           }
-          console.log(message)
           const messageOut: IoMostRx = { ...message, data: [...message.data] }
           this.win?.webContents.send('newMessage', messageOut)
         }
