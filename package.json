@@ -1,6 +1,6 @@
 {
   "name": "most-explorer",
-  "version": "1.0.5",
+  "version": "2.0.2",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
