@@ -28,4 +28,11 @@ export class Dgram extends EventEmitter{
   checkForServer(): void {
     this.socket.send(this.message, 0, this.message.length, 5555, "255.255.255.255")
   }
+
+  restartCheck(): void {
+    this.socket.setBroadcast(true)
+    this.serverCheckInterval = setInterval(() => {
+      this.checkForServer()
+    }, 5000)
+  }
 }

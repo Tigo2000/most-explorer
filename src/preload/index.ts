@@ -1,15 +1,9 @@
-import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron";
+import { contextBridge, ipcRenderer } from "electron";
 import { electronAPI } from '@electron-toolkit/preload'
-import { RetrieveAudio, SocketMostSendMessage, Stream } from "socketmost/dist/modules/Messages";
-import { Registry } from "../resources/GlobalTypes";
+import { RetrieveAudio, SocketMostSendMessage, Source, Stream } from "socketmost/dist/modules/Messages";
 
 // Custom APIs for renderer
 const api = {}
-
-interface RegistryCallback {
-  callback: (event: IpcRendererEvent, args: Registry[]) => void
-}
-
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -28,7 +22,9 @@ if (process.contextIsolated) {
       getSource: () => ipcRenderer.invoke('getSource'),
       allocate: () => ipcRenderer.invoke('allocate'),
       stream: (data: Stream) => ipcRenderer.invoke('stream', data),
-      retrieveAudio: (data: RetrieveAudio) => ipcRenderer.invoke('retrieveAudio', data)
+      retrieveAudio: (data: RetrieveAudio) => ipcRenderer.invoke('retrieveAudio', data),
+      connectSource: (data: Source) => ipcRenderer.invoke('connectSource', data),
+      disconnectSource: (data: Source) => ipcRenderer.invoke('disconnectSource', data)
     })
   } catch (error) {
     console.error(error)

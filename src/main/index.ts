@@ -3,7 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { Most } from "./Most";
-import { RetrieveAudio, SocketMostSendMessage, Stream } from "socketmost/dist/modules/Messages";
+import { RetrieveAudio, SocketMostSendMessage, Stream, Source } from "socketmost/dist/modules/Messages";
 
 let most: Most | undefined = undefined
 let mainWindow: BrowserWindow
@@ -71,6 +71,8 @@ app.whenReady().then(() => {
   ipcMain.handle('allocate', allocate)
   ipcMain.handle('stream', stream)
   ipcMain.handle('retrieveAudio', retrieveAudio)
+  ipcMain.handle('connectSource', connectSource)
+  ipcMain.handle('disconnectSource', disconnectSource)
 
   most = new Most(mainWindow)
 
@@ -102,6 +104,16 @@ const stream = (_sender, message: Stream): void => {
 const retrieveAudio = (_sender, message: RetrieveAudio): void => {
   console.log('retrieve audio', message)
   most?.retrieveAudio(message)
+}
+
+const connectSource = (_sender, message: Source): void => {
+  console.log("connect source in index")
+  most?.connectSource(message)
+}
+
+const disconnectSource = (_send, message: Source): void => {
+  console.log("disconnecting source")
+  most?.disconnectSource(message)
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common

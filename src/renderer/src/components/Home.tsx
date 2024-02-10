@@ -63,9 +63,38 @@ const Home: React.FC = () => {
     }, 10000)
   }
 
+  function convertLog(): object[]{
+    const rows = log.split("\n")
+
+    const jsons: object[] = []
+
+    rows.forEach((row) => {
+      console.log(row.length)
+      if (row.length > 0) {
+        const temp = JSON.parse(row)
+
+        const out = {}
+        Object.keys(temp).forEach((key) => {
+          if(key !== 'data') {
+            out[key] = '0x' + temp[key].toString(16)
+          } else {
+            const tempData: string[] = []
+            temp[key].forEach((dKey) => {
+              tempData.push('0x' + dKey.toString(16))
+            })
+            out[key] = tempData
+          }
+        })
+        jsons.push(out)
+      }
+
+    })
+    return jsons
+  }
+
   function setLogging(): void {
     if (loggingEnabled) {
-      const blob = new Blob([log], { type: 'text/plain' })
+      const blob = new Blob([JSON.stringify(convertLog(), null, "\t")], { type: 'text/plain' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.download = logName === '' ? 'MostDump.log' : logName + '.log'

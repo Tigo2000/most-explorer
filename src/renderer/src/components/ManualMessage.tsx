@@ -8,6 +8,8 @@ import { useNetworkStore } from '../store'
 import { fktIDs, MostMessage } from "../MostMessages";
 import Stream from './Stream'
 import { PartialSendMessage } from "../../../resources/GlobalTypes";
+import SourceConnect from "./SourceConnect";
+import SourceDisconnect from "./SourceDisconnect";
 
 const opTypes = {
   0x00: 'Set',
@@ -51,6 +53,8 @@ const ManualMessage: React.FC<Props> = ({ fBlock }) => {
     state.functions
   ])
   const [stream, setStream] = useState(false)
+  const [sourceEntry, setSourceEntry] = useState(false)
+  const [sourceDisc, setSourceDisc] = useState(false)
   console.log(fBlock)
   const renderOpTypes = (): React.ReactElement[] => {
     return Object.keys(opTypes).map((key, index) => {
@@ -178,6 +182,12 @@ const ManualMessage: React.FC<Props> = ({ fBlock }) => {
             <Button variant={'outlined'} color={'secondary'} onClick={(): void => setStream(true)}>
               Stream
             </Button>
+            <Button variant={'outlined'} color={'secondary'} onClick={(): void => setSourceEntry(true)}>
+              Connect Source
+            </Button>
+            <Button variant={'outlined'} color={'secondary'} onClick={(): void => setSourceDisc(true)}>
+              Disconnect Source
+            </Button>
             <Button variant={'outlined'} color={'secondary'} onClick={(): void => addBytes()}>
               Add More Bytes
             </Button>
@@ -211,6 +221,32 @@ const ManualMessage: React.FC<Props> = ({ fBlock }) => {
       >
         <DialogContent>
           <Stream fBlock={fBlock} />
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={sourceEntry}
+        onClose={(): void => {
+          setSourceEntry(false)
+        }}
+        maxWidth={'lg'}
+        fullWidth={true}
+        sx={{ minHeight: '50%' }}
+      >
+        <DialogContent>
+          <SourceConnect fBlock={fBlock} />
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={sourceDisc}
+        onClose={(): void => {
+          setSourceDisc(false)
+        }}
+        maxWidth={'lg'}
+        fullWidth={true}
+        sx={{ minHeight: '50%' }}
+      >
+        <DialogContent>
+          <SourceDisconnect fBlock={fBlock} />
         </DialogContent>
       </Dialog>
     </Box>
