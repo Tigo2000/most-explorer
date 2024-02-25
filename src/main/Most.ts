@@ -6,12 +6,15 @@ import {
   SocketMostMessageRx,
   Stream,
   RetrieveAudio,
-  SocketMostSendMessage, SocketTypes, Source
-} from "socketmost/dist/modules/Messages";
+  SocketMostSendMessage,
+  SocketTypes,
+  Source
+} from 'socketmost/dist/modules/Messages'
 import { BrowserWindow } from 'electron'
 import { ErrorParser } from './utils/ErrorParser'
 import { Parser } from './utils/MessageParser'
 import { AppState, IoMostRx } from '../resources/GlobalTypes'
+import { JlrMain } from './utils/jlrSwitching/JlrMain'
 
 export class Most extends EventEmitter {
   socket?: IoSocket
@@ -35,10 +38,10 @@ export class Most extends EventEmitter {
       this.updateAppState(AppState.waitingForServer)
     })
     this.dgram.on('close', () => {
-      console.log("dgram closed")
+      console.log('dgram closed')
     })
     this.dgram.on('error', () => {
-      console.log("dgram error")
+      console.log('dgram error')
     })
     this.dgram.on('serverFound', (address: string) => {
       this.address = address
@@ -68,7 +71,7 @@ export class Most extends EventEmitter {
         //Parse used functions to relevant data
         switch (message.fktID) {
           case 2561:
-            console.log("reg update")
+            console.log('reg update')
             this.parser.parseMessage(message, message.fktID)
             break
           case 0:
@@ -97,39 +100,39 @@ export class Most extends EventEmitter {
   }
 
   updateAppState(value: number): void {
-    console.log("App State", AppState[value], value)
+    console.log('App State', AppState[value], value)
     this.appState = value
     this.win?.webContents.send('appStatus', value)
   }
 
   getRegistry(): void {
-    this.socket?.emit("requestRegistry");
+    this.socket?.emit('requestRegistry')
   }
 
   sendControlMessage(data: SocketMostSendMessage): void {
-    this.socket?.emit("sendControlMessage", data);
+    this.socket?.emit('sendControlMessage', data)
   }
 
   getSource(connectionLabel = 0): void {
-    this.socket?.emit("getSource", { connectionLabel });
+    this.socket?.emit('getSource', { connectionLabel })
   }
 
   allocate(): void {
-    this.socket?.emit("allocate");
+    this.socket?.emit('allocate')
   }
 
   stream(data: Stream): void {
-    console.log("streaming");
-    this.socket?.emit("stream", data);
+    console.log('streaming')
+    this.socket?.emit('stream', data)
   }
 
   retrieveAudio(data: RetrieveAudio): void {
-    console.log("retrieving audio");
-    this.socket?.emit("retrieveAudio", data);
+    console.log('retrieving audio')
+    this.socket?.emit('retrieveAudio', data)
   }
 
   connectSource(data: Source): void {
-    console.log("connecting source", data)
+    console.log('connecting source', data)
     this.socket?.emit(SocketTypes.ConnectSource, data)
   }
 

@@ -15,32 +15,44 @@ import Button from '@mui/material/Button'
 import { requestRegistry, getSource, allocate } from '../ipc'
 import ManualMessage from './ManualMessage'
 import RetrieveAudio from './RetrieveAudio'
-import ManualMessageAll from "./ManualMessageAll";
+import ManualMessageAll from './ManualMessageAll'
 
 const Home: React.FC = () => {
   let errorTimer: NodeJS.Timer | undefined = undefined
   const [error, setError] = useState(null)
-  const [log, clearLog, loggingEnabled, setLoggingEnabled] = useLogStore((state: LogStore) => [
+  const [
+    log,
+    clearLog,
+    loggingEnabled,
+    setLoggingEnabled,
+    logOnlyData,
+    setLogOnlyData,
+    dataLog,
+    logCount
+  ] = useLogStore((state: LogStore) => [
     state.log,
     state.clearLog,
     state.loggingEnabled,
-    state.setLoggingEnabled
+    state.setLoggingEnabled,
+    state.logOnlyData,
+    state.setLogOnlyData,
+    state.dataLog,
+    state.logCount
   ])
   const [filter, setFilter, messages] = useMessageStore((state: MessageStore) => [
     state.filter,
     state.setFilter,
     state.messages
   ])
-  const [fBlock, clearFBlock, retrieveAudioModal, setRetrieveAudioModal, setManualAll, manualOpen] = useStatusStore(
-    (state) => [
+  const [fBlock, clearFBlock, retrieveAudioModal, setRetrieveAudioModal, setManualAll, manualOpen] =
+    useStatusStore((state) => [
       state.fBlock,
       state.clearFBlock,
       state.retrieveAudioModal,
       state.setRetrieveAudioModal,
       state.setManualAll,
       state.manualOpen
-    ]
-  )
+    ])
   const [clearFunctions] = useNetworkStore((state: NetworkStore) => [state.clearFunctions])
   const [logName, setlogName] = useState('')
   //console.log(functions)
@@ -63,8 +75,8 @@ const Home: React.FC = () => {
     }, 10000)
   }
 
-  function convertLog(): object[]{
-    const rows = log.split("\n")
+  function convertLog(): object[] {
+    const rows = log.split('\n')
 
     const jsons: object[] = []
 
@@ -75,7 +87,7 @@ const Home: React.FC = () => {
 
         const out = {}
         Object.keys(temp).forEach((key) => {
-          if(key !== 'data') {
+          if (key !== 'data') {
             out[key] = '0x' + temp[key].toString(16)
           } else {
             const tempData: string[] = []
@@ -87,14 +99,13 @@ const Home: React.FC = () => {
         })
         jsons.push(out)
       }
-
     })
     return jsons
   }
 
   function setLogging(): void {
     if (loggingEnabled) {
-      const blob = new Blob([JSON.stringify(convertLog(), null, "\t")], { type: 'text/plain' })
+      const blob = new Blob([JSON.stringify(convertLog(), null, '\t')], { type: 'text/plain' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.download = logName === '' ? 'MostDump.log' : logName + '.log'
@@ -104,6 +115,21 @@ const Home: React.FC = () => {
       clearLog()
     } else {
       setLoggingEnabled(true)
+    }
+  }
+
+  function setDataLogging(): void {
+    if (logOnlyData) {
+      const blob = new Blob([dataLog])
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.download = logName === '' ? 'MostDump.log' : logName + '.log'
+      link.href = url
+      link.click()
+      setLogOnlyData(false)
+      clearLog()
+    } else {
+      setLogOnlyData(true)
     }
   }
 
@@ -129,6 +155,9 @@ const Home: React.FC = () => {
       </Button>
       <Button variant={'outlined'} onClick={(): void => setLogging()}>
         {loggingEnabled ? 'Stop Logging' : 'Begin Logging'}
+      </Button>
+      <Button variant={'outlined'} onClick={(): void => setDataLogging()}>
+        {logOnlyData ? `Stop Data Logging ${logCount}` : 'Begin Data Logging'}
       </Button>
       <TextField label={'Log File Name'} value={logName} onChange={logNameChange} />
       {error ? <Alert severity="error">{error}</Alert> : <div></div>}

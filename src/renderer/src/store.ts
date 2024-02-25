@@ -1,7 +1,11 @@
 import create from 'zustand'
 import { Buffer } from 'buffer'
-import { Registry, SelectedFBlock } from "../../resources/GlobalTypes";
-import { SocketMostMessageRx } from "socketmost/dist/modules/Messages";
+import { Registry, SelectedFBlock } from '../../resources/GlobalTypes'
+import {
+  MostRxMessage,
+  SocketMostMessageRx,
+  SocketMostSendMessage
+} from 'socketmost/dist/modules/Messages'
 
 export interface NetworkStore {
   registry: Registry
@@ -12,11 +16,13 @@ export interface NetworkStore {
 export interface LogStore {
   loggingEnabled: boolean
   log: string
+  dataLog: Buffer
+  logOnlyData: boolean
   setLoggingEnabled: (data: boolean) => void
   clearLog: () => void
+  setLogOnlyData: (data: boolean) => void
+  logCount: number
 }
-
-
 
 export interface FBlock {
   targetAddress: number
@@ -39,7 +45,7 @@ export interface StatusStore {
 }
 
 export interface MessageStore {
-  messages: SocketMostMessageRx[]
+  messages: MostRxMessage
   filter: string
   setFilter: (data: string) => void
 }
@@ -78,11 +84,17 @@ export const useStatusStore = create<StatusStore>()((set) => ({
 export const useLogStore = create<LogStore>()((set) => ({
   loggingEnabled: false,
   log: '',
+  logCount: 0,
+  logOnlyData: false,
+  dataLog: Buffer.alloc(0),
   setLoggingEnabled: (data): void => {
-    set(() => ({loggingEnabled: data}))
+    set(() => ({ loggingEnabled: data }))
   },
   clearLog: (): void => {
-    set(() => ({log: ''}))
+    set(() => ({ log: '', dataLog: Buffer.alloc(0), logCount: 0 }))
+  },
+  setLogOnlyData: (data): void => {
+    set(() => ({ logOnlyData: data }))
   }
 }))
 
@@ -94,13 +106,32 @@ export const useMessageStore = create<MessageStore>((set) => ({
   }
 }))
 
-window["most"].newMessage((_event, value: SocketMostMessageRx) => {
+window['most'].newMessage((_event, value: SocketMostMessageRx) => {
   console.log('new Message', _event, value)
   if (useMessageStore.getState().filter === '') {
     if (useLogStore.getState().loggingEnabled) {
       useLogStore.setState((state) => ({ log: state.log + '\n' + JSON.stringify(value) }))
+      useMessageStore.setState((state) => ({ messages: [value, ...state.messages.slice(0, 10)] }))
+    } else if (useLogStore.getState().logOnlyData) {
+      if (value.fktID === 3362 && value.opType === 12) {
+        let dataSliced
+        if (value.data[2] > 1) {
+          dataSliced = Buffer.from(value.data.slice(3, value.telLen))
+          useLogStore.setState((state) => ({
+            dataLog: Buffer.concat([state.dataLog, dataSliced]),
+            logCount: state.logCount + 1
+          }))
+        } else if (value.data[2] === 1) {
+          dataSliced = Buffer.from('\n')
+          useLogStore.setState((state) => ({
+            dataLog: Buffer.concat([state.dataLog, dataSliced]),
+            logCount: state.logCount + 1
+          }))
+        }
+      }
+    } else {
+      useMessageStore.setState((state) => ({ messages: [value, ...state.messages.slice(0, 10)] }))
     }
-    useMessageStore.setState((state) => ({ messages: [value, ...state.messages.slice(0, 10)] }))
   } else if (value.fBlockID === parseInt(useMessageStore.getState().filter)) {
     if (useLogStore.getState().loggingEnabled) {
       useLogStore.setState((state) => ({ log: state.log + '\n' + JSON.stringify(value) }))
@@ -109,17 +140,17 @@ window["most"].newMessage((_event, value: SocketMostMessageRx) => {
   }
 })
 
-window["most"].appStatus((_event, value: number) => {
+window['most'].appStatus((_event, value: number) => {
   console.log('appStatus', value)
   useStatusStore.setState(() => ({ appStatus: value }))
 })
 
-window["most"].registryUpdate((_event, value: Registry) => {
-  console.log("registry", value)
+window['most'].registryUpdate((_event, value: Registry) => {
+  console.log('registry', value)
   useNetworkStore.setState(() => ({ registry: value }))
   console.log(useNetworkStore.getState().registry)
 })
 
-window["most"].functions((_event, value) => {
+window['most'].functions((_event, value) => {
   useNetworkStore.setState(() => ({ functions: value }))
 })
