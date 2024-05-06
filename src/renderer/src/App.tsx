@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import ResponsiveAppBar from './components/AppBar'
 import { Routes, Route } from 'react-router-dom'
 import { useTheme } from '@mui/material'
@@ -13,7 +13,8 @@ import { useNetworkStore, useStatusStore } from './store'
 import CssBaseline from '@mui/material/CssBaseline'
 import Starting from './components/Starting'
 import PersistentDrawerLeft from './components/Drawer'
-import { Registry } from "../../resources/GlobalTypes";
+import { Registry } from '../../resources/GlobalTypes'
+import { getAppState } from './ipc'
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} })
 
@@ -41,6 +42,10 @@ export default function App(): JSX.Element {
     }),
     []
   )
+
+  useEffect(() => {
+    getAppState()
+  }, [])
 
   const theme = React.useMemo(
     () =>

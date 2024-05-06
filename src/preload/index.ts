@@ -1,6 +1,11 @@
-import { contextBridge, ipcRenderer } from "electron";
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { RetrieveAudio, SocketMostSendMessage, Source, Stream } from "socketmost/dist/modules/Messages";
+import {
+  RetrieveAudio,
+  SocketMostSendMessage,
+  Source,
+  Stream
+} from 'socketmost/dist/modules/Messages'
 
 // Custom APIs for renderer
 const api = {}
@@ -23,6 +28,7 @@ if (process.contextIsolated) {
       allocate: () => ipcRenderer.invoke('allocate'),
       stream: (data: Stream) => ipcRenderer.invoke('stream', data),
       retrieveAudio: (data: RetrieveAudio) => ipcRenderer.invoke('retrieveAudio', data),
+      getAppState: (data: RetrieveAudio) => ipcRenderer.invoke('getAppState', data),
       connectSource: (data: Source) => ipcRenderer.invoke('connectSource', data),
       disconnectSource: (data: Source) => ipcRenderer.invoke('disconnectSource', data)
     })

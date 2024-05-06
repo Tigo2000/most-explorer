@@ -1,12 +1,30 @@
-import { app, shell, BrowserWindow, ipcMain } from "electron";
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { Most } from "./Most";
-import { RetrieveAudio, SocketMostSendMessage, Stream, Source } from "socketmost/dist/modules/Messages";
+import { Most } from './Most'
+import {
+  RetrieveAudio,
+  SocketMostSendMessage,
+  Stream,
+  Source
+} from 'socketmost/dist/modules/Messages'
+import { UsbMost } from './UsbMost'
+import * as fs from 'fs'
+import * as path from 'node:path'
 
-let most: Most | undefined = undefined
+let most: Most | UsbMost | undefined = undefined
 let mainWindow: BrowserWindow
+let config = {}
+const configPath = app.getPath('userData') + path.sep + 'config.json'
+if (fs.existsSync(configPath)) {
+  config = JSON.parse(fs.readFileSync(configPath).toString())
+  console.log('config is: ', config)
+} else {
+  console.log('creating config')
+  config = { usb: true }
+  fs.writeFileSync(configPath, JSON.stringify(config))
+}
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -39,7 +57,6 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
 }
 
 // This method will be called when Electron has finished
@@ -73,9 +90,12 @@ app.whenReady().then(() => {
   ipcMain.handle('retrieveAudio', retrieveAudio)
   ipcMain.handle('connectSource', connectSource)
   ipcMain.handle('disconnectSource', disconnectSource)
-
-  most = new Most(mainWindow)
-
+  ipcMain.handle('getAppState', getAppStatus)
+  if (config.usb) {
+    most = new UsbMost(mainWindow)
+  } else {
+    most = new Most(mainWindow)
+  }
 })
 
 const getRegistry = (): void => {
@@ -92,12 +112,12 @@ const allocate = (): void => {
 }
 
 const sendMessage = (_sender, message: SocketMostSendMessage): void => {
-  console.log("send message request: ", message)
+  console.log('send message request: ', message)
   most?.sendControlMessage(message)
 }
 
 const stream = (_sender, message: Stream): void => {
-  console.log("requesting stream", message)
+  console.log('requesting stream', message)
   most?.stream(message)
 }
 
@@ -107,13 +127,17 @@ const retrieveAudio = (_sender, message: RetrieveAudio): void => {
 }
 
 const connectSource = (_sender, message: Source): void => {
-  console.log("connect source in index")
+  console.log('connect source in index')
   most?.connectSource(message)
 }
 
 const disconnectSource = (_send, message: Source): void => {
-  console.log("disconnecting source")
+  console.log('disconnecting source')
   most?.disconnectSource(message)
+}
+
+const getAppStatus = (): void => {
+  mainWindow?.webContents.send('appStatus', most!.appState)
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common
