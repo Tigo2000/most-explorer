@@ -36,12 +36,14 @@ export interface StatusStore {
   open: boolean
   retrieveAudioModal: boolean
   manualOpen: boolean
+  sourceOpen: boolean
   fBlock?: SelectedFBlock
   setOpen: (open: boolean) => void
   setFBlock: (fBlockID: FBlock) => void
   clearFBlock: () => void
   setRetrieveAudioModal: (open: boolean) => void
   setManualAll: (open: boolean) => void
+  setSourceOpen: (open: boolean) => void
 }
 
 export interface MessageStore {
@@ -63,6 +65,7 @@ export const useStatusStore = create<StatusStore>()((set) => ({
   open: false,
   retrieveAudioModal: false,
   manualOpen: false,
+  sourceOpen: false,
   setOpen: (open): void => set(() => ({ open: open })),
   setFBlock: (fBlock): void =>
     set(() => {
@@ -78,7 +81,8 @@ export const useStatusStore = create<StatusStore>()((set) => ({
     }),
   clearFBlock: (): void => set(() => ({ fBlock: undefined })),
   setRetrieveAudioModal: (open): void => set(() => ({ retrieveAudioModal: open })),
-  setManualAll: (open): void => set(() => ({ manualOpen: open }))
+  setManualAll: (open): void => set(() => ({ manualOpen: open })),
+  setSourceOpen: (open): void => set(() => ({ sourceOpen: open }))
 }))
 
 export const useLogStore = create<LogStore>()((set) => ({

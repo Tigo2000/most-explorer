@@ -4,6 +4,7 @@ import {
   Source,
   Stream
 } from 'socketmost/dist/modules/Messages'
+import { SourceRecord } from '../../main/parsers/JlrTouch'
 
 export const requestRegistry = (): void => {
   window['most'].requestRegistry()
@@ -41,4 +42,8 @@ export const connectSource = (data: Source): void => {
 export const disconnectSource = (data: Source): void => {
   console.log('ipc connect source request')
   window['most'].disconnectSource(data)
+}
+
+export const switchSource = (data: SourceRecord): void => {
+  window['most'].switchSource(data)
 }

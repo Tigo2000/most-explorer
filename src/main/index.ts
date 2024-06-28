@@ -12,6 +12,7 @@ import {
 import { UsbMost } from './UsbMost'
 import * as fs from 'fs'
 import * as path from 'node:path'
+import { SourceRecord } from './parsers/JlrTouch'
 
 let most: Most | UsbMost | undefined = undefined
 let mainWindow: BrowserWindow
@@ -91,6 +92,7 @@ app.whenReady().then(() => {
   ipcMain.handle('connectSource', connectSource)
   ipcMain.handle('disconnectSource', disconnectSource)
   ipcMain.handle('getAppState', getAppStatus)
+  ipcMain.handle('switchSource', switchSource)
   if (config.usb) {
     most = new UsbMost(mainWindow)
   } else {
@@ -138,6 +140,10 @@ const disconnectSource = (_send, message: Source): void => {
 
 const getAppStatus = (): void => {
   mainWindow?.webContents.send('appStatus', most!.appState)
+}
+
+const switchSource = (_send, message: SourceRecord): void => {
+  most?.switchSource(message)
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common

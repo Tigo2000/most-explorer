@@ -11,7 +11,8 @@ import Brightness4Icon from '@mui/icons-material/Brightness4'
 import Brightness7Icon from '@mui/icons-material/Brightness7'
 import MenuIcon from '@mui/icons-material/Menu'
 import SendIcon from '@mui/icons-material/Send'
-import { Apps, Mic } from "@mui/icons-material";
+import InputIcon from '@mui/icons-material/Input'
+import { Apps, Mic } from '@mui/icons-material'
 import { useStatusStore } from '../store'
 
 const pages = [{ name: 'Most Explorer', url: 'MostExplorer' }]
@@ -21,7 +22,23 @@ interface Props {
   }
 }
 const ResponsiveAppBar: React.FC<Props> = ({ colorMode }) => {
-  const [open, setOpen, retrieveAudioModal, setRetrieveAudioModal, setManualAll] = useStatusStore((state) => [state.open, state.setOpen, state.retrieveAudioModal, state.setRetrieveAudioModal, state.setManualAll])
+  const [
+    open,
+    setOpen,
+    retrieveAudioModal,
+    setRetrieveAudioModal,
+    setManualAll,
+    sourceOpen,
+    setSourceOpen
+  ] = useStatusStore((state) => [
+    state.open,
+    state.setOpen,
+    state.retrieveAudioModal,
+    state.setRetrieveAudioModal,
+    state.setManualAll,
+    state.sourceOpen,
+    state.setSourceOpen
+  ])
   const nav = useNavigate()
   const theme = useTheme()
 
@@ -43,7 +60,11 @@ const ResponsiveAppBar: React.FC<Props> = ({ colorMode }) => {
             ))}
           </Box>
           <Box>
-            <IconButton sx={{ ml: 1 }} onClick={(): void => setRetrieveAudioModal(!retrieveAudioModal)} color="inherit">
+            <IconButton
+              sx={{ ml: 1 }}
+              onClick={(): void => setRetrieveAudioModal(!retrieveAudioModal)}
+              color="inherit"
+            >
               <Mic />
             </IconButton>
           </Box>
@@ -59,6 +80,15 @@ const ResponsiveAppBar: React.FC<Props> = ({ colorMode }) => {
           <Box>
             <IconButton sx={{ ml: 1 }} onClick={(): void => setManualAll(true)} color="inherit">
               <SendIcon />
+            </IconButton>
+          </Box>
+          <Box>
+            <IconButton
+              sx={{ ml: 1 }}
+              onClick={(): void => setSourceOpen(!sourceOpen)}
+              color="inherit"
+            >
+              <InputIcon />
             </IconButton>
           </Box>
           <Box>

@@ -16,6 +16,7 @@ import { requestRegistry, getSource, allocate } from '../ipc'
 import ManualMessage from './ManualMessage'
 import RetrieveAudio from './RetrieveAudio'
 import ManualMessageAll from './ManualMessageAll'
+import JlrSource from './JlrSource'
 
 const Home: React.FC = () => {
   let errorTimer: NodeJS.Timer | undefined = undefined
@@ -44,15 +45,25 @@ const Home: React.FC = () => {
     state.setFilter,
     state.messages
   ])
-  const [fBlock, clearFBlock, retrieveAudioModal, setRetrieveAudioModal, setManualAll, manualOpen] =
-    useStatusStore((state) => [
-      state.fBlock,
-      state.clearFBlock,
-      state.retrieveAudioModal,
-      state.setRetrieveAudioModal,
-      state.setManualAll,
-      state.manualOpen
-    ])
+  const [
+    fBlock,
+    clearFBlock,
+    retrieveAudioModal,
+    setRetrieveAudioModal,
+    setManualAll,
+    manualOpen,
+    sourceOpen,
+    setSourceOpen
+  ] = useStatusStore((state) => [
+    state.fBlock,
+    state.clearFBlock,
+    state.retrieveAudioModal,
+    state.setRetrieveAudioModal,
+    state.setManualAll,
+    state.manualOpen,
+    state.sourceOpen,
+    state.setSourceOpen
+  ])
   const [clearFunctions] = useNetworkStore((state: NetworkStore) => [state.clearFunctions])
   const [logName, setlogName] = useState('')
   //console.log(functions)
@@ -205,6 +216,19 @@ const Home: React.FC = () => {
       >
         <DialogContent>
           <ManualMessageAll />
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={sourceOpen}
+        onClose={(): void => {
+          setSourceOpen(false)
+        }}
+        maxWidth={'lg'}
+        fullWidth={true}
+        sx={{ minHeight: '50%' }}
+      >
+        <DialogContent>
+          <JlrSource />
         </DialogContent>
       </Dialog>
     </Box>
