@@ -12,7 +12,8 @@ import {
   Source,
   Stream
 } from 'socketmost/dist/modules/Messages'
-import { JlrTouch, SourceRecord } from './parsers/JlrTouch'
+import { JlrAudioControl } from 'socketmost'
+import { SourceRecord } from './parsers/JlrTouch'
 
 export class UsbMost extends EventEmitter {
   win: BrowserWindow
@@ -21,7 +22,7 @@ export class UsbMost extends EventEmitter {
   parser: Parser
   appState: number
   address: null | string
-  touch: JlrTouch
+  audio: JlrAudioControl
   constructor(win: BrowserWindow) {
     super()
     this.socketMost = new SocketMostUsb()
@@ -31,7 +32,7 @@ export class UsbMost extends EventEmitter {
     this.errorParser = new ErrorParser()
     this.appState = AppState.loading
     this.updateAppState(this.appState)
-    this.touch = new JlrTouch(this.socketMost)
+    this.audio = new JlrAudioControl(this.socketMost)
     this.socketMost.on('opened', () => {
       this.updateAppState(AppState.connectingToSocket)
     })
@@ -57,7 +58,7 @@ export class UsbMost extends EventEmitter {
           case 0:
             message.fBlockID > 1 ? this.parser.parseMessage(message, message.fktID) : null
         }
-        this.touch.parseMessage(message)
+        this.audio.parseMessage(message)
         const messageOut: IoMostRx = { ...message, data: [...message.data] }
         this.win?.webContents.send('newMessage', messageOut)
       }
@@ -117,6 +118,6 @@ export class UsbMost extends EventEmitter {
   }
 
   switchSource(message: SourceRecord): void {
-    this.touch.switchSource(message)
+    this.audio.switchSource(message)
   }
 }
