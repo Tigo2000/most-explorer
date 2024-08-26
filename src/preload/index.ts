@@ -7,6 +7,7 @@ import {
   Stream
 } from 'socketmost/dist/modules/Messages'
 import { SourceRecord } from '../main/parsers/JlrTouch'
+import { Settings } from '../main/Types'
 
 // Custom APIs for renderer
 const api = {}
@@ -32,7 +33,10 @@ if (process.contextIsolated) {
       getAppState: (data: RetrieveAudio) => ipcRenderer.invoke('getAppState', data),
       connectSource: (data: Source) => ipcRenderer.invoke('connectSource', data),
       disconnectSource: (data: Source) => ipcRenderer.invoke('disconnectSource', data),
-      switchSource: (data: SourceRecord) => ipcRenderer.invoke('switchSource', data)
+      switchSource: (data: SourceRecord) => ipcRenderer.invoke('switchSource', data),
+      settingsUpdate: (callback) => ipcRenderer.on('settingsUpdate', callback),
+      getSettings: () => ipcRenderer.invoke('getSettings'),
+      saveSettings: (settings: Settings) => ipcRenderer.invoke('saveSettings', settings)
     })
   } catch (error) {
     console.error(error)

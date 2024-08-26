@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import ResponsiveAppBar from './components/AppBar'
 import { Routes, Route } from 'react-router-dom'
-import { useTheme } from '@mui/material'
+import { Dialog, DialogContent, useTheme } from '@mui/material'
 import Home from './components/Home'
 import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
@@ -14,7 +14,8 @@ import CssBaseline from '@mui/material/CssBaseline'
 import Starting from './components/Starting'
 import PersistentDrawerLeft from './components/Drawer'
 import { Registry } from '../../resources/GlobalTypes'
-import { getAppState } from './ipc'
+import { getAppState, reqSettings } from './ipc'
+import Settings from './components/Settings'
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} })
 
@@ -34,6 +35,10 @@ export default function App(): JSX.Element {
   const [mode, setMode] = React.useState('dark')
   const appStatus = useStatusStore((state) => state['appStatus'])
   const registry: Registry = useNetworkStore((state) => state['registry'])
+  const [settingsOpen, setSettingsOpen] = useStatusStore((state) => [
+    state.settingsOpen,
+    state.setSettingsOpen
+  ])
   const colorMode = React.useMemo(
     () => ({
       toggleColorMode: (): void => {
@@ -45,6 +50,7 @@ export default function App(): JSX.Element {
 
   useEffect(() => {
     getAppState()
+    reqSettings()
   }, [])
 
   const theme = React.useMemo(
@@ -106,6 +112,19 @@ export default function App(): JSX.Element {
             )}
           </Box>
         </Box>
+        <Dialog
+          open={settingsOpen}
+          onClose={(): void => {
+            setSettingsOpen(false)
+          }}
+          maxWidth={'lg'}
+          fullWidth={true}
+          sx={{ minHeight: '50%' }}
+        >
+          <DialogContent>
+            <Settings />
+          </DialogContent>
+        </Dialog>
       </ThemeProvider>
     </ColorModeContext.Provider>
   )

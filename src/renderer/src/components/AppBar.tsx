@@ -12,6 +12,7 @@ import Brightness7Icon from '@mui/icons-material/Brightness7'
 import MenuIcon from '@mui/icons-material/Menu'
 import SendIcon from '@mui/icons-material/Send'
 import InputIcon from '@mui/icons-material/Input'
+import SettingsIcon from '@mui/icons-material/Settings'
 import { Apps, Mic } from '@mui/icons-material'
 import { useStatusStore } from '../store'
 
@@ -29,7 +30,10 @@ const ResponsiveAppBar: React.FC<Props> = ({ colorMode }) => {
     setRetrieveAudioModal,
     setManualAll,
     sourceOpen,
-    setSourceOpen
+    setSourceOpen,
+    setSettingsOpen,
+    settingsOpen,
+    appStatus
   ] = useStatusStore((state) => [
     state.open,
     state.setOpen,
@@ -37,7 +41,10 @@ const ResponsiveAppBar: React.FC<Props> = ({ colorMode }) => {
     state.setRetrieveAudioModal,
     state.setManualAll,
     state.sourceOpen,
-    state.setSourceOpen
+    state.setSourceOpen,
+    state.setSettingsOpen,
+    state.settingsOpen,
+    state.appStatus
   ])
   const nav = useNavigate()
   const theme = useTheme()
@@ -64,21 +71,23 @@ const ResponsiveAppBar: React.FC<Props> = ({ colorMode }) => {
               sx={{ ml: 1 }}
               onClick={(): void => setRetrieveAudioModal(!retrieveAudioModal)}
               color="inherit"
+              disabled={appStatus < 3 ? true : false}
             >
               <Mic />
             </IconButton>
           </Box>
           <Box>
-            <Apps fontSize={'large'} onClick={(): void => nav('/Launcher')} />
-          </Box>
-          <Box>
-            {theme.palette.mode} mode
-            <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
-              {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+            <IconButton sx={{ ml: 1 }} onClick={(): void => setSettingsOpen(true)} color="inherit">
+              <SettingsIcon />
             </IconButton>
           </Box>
           <Box>
-            <IconButton sx={{ ml: 1 }} onClick={(): void => setManualAll(true)} color="inherit">
+            <IconButton
+              sx={{ ml: 1 }}
+              onClick={(): void => setManualAll(true)}
+              color="inherit"
+              disabled={appStatus < 3 ? true : false}
+            >
               <SendIcon />
             </IconButton>
           </Box>
@@ -87,6 +96,7 @@ const ResponsiveAppBar: React.FC<Props> = ({ colorMode }) => {
               sx={{ ml: 1 }}
               onClick={(): void => setSourceOpen(!sourceOpen)}
               color="inherit"
+              disabled={appStatus < 3 ? true : false}
             >
               <InputIcon />
             </IconButton>

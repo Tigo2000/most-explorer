@@ -5,6 +5,7 @@ import {
   Stream
 } from 'socketmost/dist/modules/Messages'
 import { SourceRecord } from '../../main/parsers/JlrTouch'
+import { Settings } from '../../main/Types'
 
 export const requestRegistry = (): void => {
   window['most'].requestRegistry()
@@ -32,6 +33,15 @@ export const retrieveAudio = (data: number[]): void => {
 
 export const getAppState = (): void => {
   window['most'].getAppState()
+}
+
+export const saveSettings = (settings: Settings): void => {
+  window['most'].saveSettings(settings)
+}
+
+export const reqSettings = (): void => {
+  console.log('requestingSettings')
+  window['most'].getSettings()
 }
 
 export const connectSource = (data: Source): void => {

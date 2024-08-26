@@ -17,6 +17,7 @@ import ManualMessage from './ManualMessage'
 import RetrieveAudio from './RetrieveAudio'
 import ManualMessageAll from './ManualMessageAll'
 import JlrSource from './JlrSource'
+import Settings from './Settings'
 
 const Home: React.FC = () => {
   let errorTimer: NodeJS.Timer | undefined = undefined
@@ -53,7 +54,9 @@ const Home: React.FC = () => {
     setManualAll,
     manualOpen,
     sourceOpen,
-    setSourceOpen
+    setSourceOpen,
+    settingsOpen,
+    setSettingsOpen
   ] = useStatusStore((state) => [
     state.fBlock,
     state.clearFBlock,
@@ -62,7 +65,9 @@ const Home: React.FC = () => {
     state.setManualAll,
     state.manualOpen,
     state.sourceOpen,
-    state.setSourceOpen
+    state.setSourceOpen,
+    state.settingsOpen,
+    state.setSettingsOpen
   ])
   const [clearFunctions] = useNetworkStore((state: NetworkStore) => [state.clearFunctions])
   const [logName, setlogName] = useState('')
@@ -71,6 +76,7 @@ const Home: React.FC = () => {
     window['most'].error((_event, value: string): void => {
       setErrorData(value)
     })
+    window['most'].getSettings()
     return () => {
       clearTimeout(errorTimer)
     }
@@ -229,6 +235,19 @@ const Home: React.FC = () => {
       >
         <DialogContent>
           <JlrSource />
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={settingsOpen}
+        onClose={(): void => {
+          setSettingsOpen(false)
+        }}
+        // maxWidth={'lg'}
+        // fullWidth={true}
+        PaperProps={{ sx: { minHeight: '80%' } }}
+      >
+        <DialogContent sx={{ minHeight: '80%' }}>
+          <Settings />
         </DialogContent>
       </Dialog>
     </Box>

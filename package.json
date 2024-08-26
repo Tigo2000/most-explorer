@@ -1,6 +1,6 @@
 {
   "name": "most-explorer",
-  "version": "2.0.2",
+  "version": "3.0.0-beta.1",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -33,7 +33,7 @@
     "react-router-dom": "^6.16.0",
     "react-window-ui": "^2.2.0",
     "socket.io-client": "^4.7.2",
-    "socketmost": "^3.0.1-alpha.19",
+    "socketmost": "^3.0.1-alpha.20",
     "zustand": "^4.4.1"
   },
   "devDependencies": {

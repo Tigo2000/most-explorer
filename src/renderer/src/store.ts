@@ -6,6 +6,7 @@ import {
   SocketMostMessageRx,
   SocketMostSendMessage
 } from 'socketmost/dist/modules/Messages'
+import { Settings } from '../../main/Types'
 
 export interface NetworkStore {
   registry: Registry
@@ -37,6 +38,7 @@ export interface StatusStore {
   retrieveAudioModal: boolean
   manualOpen: boolean
   sourceOpen: boolean
+  settingsOpen: boolean
   fBlock?: SelectedFBlock
   setOpen: (open: boolean) => void
   setFBlock: (fBlockID: FBlock) => void
@@ -44,6 +46,18 @@ export interface StatusStore {
   setRetrieveAudioModal: (open: boolean) => void
   setManualAll: (open: boolean) => void
   setSourceOpen: (open: boolean) => void
+  setSettingsOpen: (open: boolean) => void
+}
+
+export interface MostSettings {
+  usb: boolean
+  manualIp: boolean
+  ip: string
+  nodeAddressHigh: number
+  nodeAddressLow: number
+  groupAddress: number
+  autoShutdown: false
+  jlrSwitching: false
 }
 
 export interface MessageStore {
@@ -66,6 +80,7 @@ export const useStatusStore = create<StatusStore>()((set) => ({
   retrieveAudioModal: false,
   manualOpen: false,
   sourceOpen: false,
+  settingsOpen: false,
   setOpen: (open): void => set(() => ({ open: open })),
   setFBlock: (fBlock): void =>
     set(() => {
@@ -82,7 +97,8 @@ export const useStatusStore = create<StatusStore>()((set) => ({
   clearFBlock: (): void => set(() => ({ fBlock: undefined })),
   setRetrieveAudioModal: (open): void => set(() => ({ retrieveAudioModal: open })),
   setManualAll: (open): void => set(() => ({ manualOpen: open })),
-  setSourceOpen: (open): void => set(() => ({ sourceOpen: open }))
+  setSourceOpen: (open): void => set(() => ({ sourceOpen: open })),
+  setSettingsOpen: (open): void => set(() => ({ settingsOpen: open }))
 }))
 
 export const useLogStore = create<LogStore>()((set) => ({
@@ -100,6 +116,17 @@ export const useLogStore = create<LogStore>()((set) => ({
   setLogOnlyData: (data): void => {
     set(() => ({ logOnlyData: data }))
   }
+}))
+
+export const useMostSettings = create<MostSettings>()((set) => ({
+  usb: false,
+  manualIp: false,
+  ip: '',
+  nodeAddressHigh: 0x01,
+  nodeAddressLow: 0x10,
+  groupAddress: 0x22,
+  autoShutdown: false,
+  jlrSwitching: false
 }))
 
 export const useMessageStore = create<MessageStore>((set) => ({
@@ -157,4 +184,9 @@ window['most'].registryUpdate((_event, value: Registry) => {
 
 window['most'].functions((_event, value) => {
   useNetworkStore.setState(() => ({ functions: value }))
+})
+
+window['most'].settingsUpdate((_event, value: Settings) => {
+  useMostSettings.setState(() => value)
+  console.log(useMostSettings.getState())
 })

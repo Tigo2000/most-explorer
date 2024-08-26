@@ -13,17 +13,54 @@ import { UsbMost } from './UsbMost'
 import * as fs from 'fs'
 import * as path from 'node:path'
 import { SourceRecord } from './parsers/JlrTouch'
+import { Settings } from './Types'
 
 let most: Most | UsbMost | undefined = undefined
 let mainWindow: BrowserWindow
-let config = {}
+
+// type checkConfigVersion = (config: Settings, DEFAULT_CONFIG: Settings, path: string) => Settings
+
+const DEFAULT_CONFIG: Settings = {
+  autoShutdown: false,
+  groupAddress: 0x22,
+  ip: '',
+  jlrSwitching: false,
+  manualIp: false,
+  nodeAddressHigh: 0x01,
+  nodeAddressLow: 0x10,
+  usb: false
+}
+
+const checkConfigVersion = (
+  config: Settings,
+  DEFAULT_CONFIG: Settings,
+  configPath: string
+): Settings => {
+  let modified = false
+  Object.keys(DEFAULT_CONFIG).forEach((key) => {
+    if (!Object.keys(config).includes(key)) {
+      console.log(`config out of date, setting defaults`)
+      // @ts-ignore
+      config[key] = DEFAULT_CONFIG[key]
+      modified = true
+    }
+  })
+  if (modified) {
+    fs.writeFileSync(configPath, JSON.stringify(config))
+  }
+  return config
+}
+
+let config: Settings
+
 const configPath = app.getPath('userData') + path.sep + 'config.json'
+console.log('Settings path: ' + configPath)
 if (fs.existsSync(configPath)) {
   config = JSON.parse(fs.readFileSync(configPath).toString())
+  config = checkConfigVersion(config, DEFAULT_CONFIG, configPath)
   console.log('config is: ', config)
 } else {
   console.log('creating config')
-  config = { usb: true }
   fs.writeFileSync(configPath, JSON.stringify(config))
 }
 function createWindow(): void {
@@ -93,10 +130,12 @@ app.whenReady().then(() => {
   ipcMain.handle('disconnectSource', disconnectSource)
   ipcMain.handle('getAppState', getAppStatus)
   ipcMain.handle('switchSource', switchSource)
+  ipcMain.handle('getSettings', getSettings)
+  ipcMain.handle('saveSettings', saveSettings)
   if (config.usb) {
     most = new UsbMost(mainWindow)
   } else {
-    most = new Most(mainWindow)
+    most = new Most(mainWindow, config)
   }
 })
 
@@ -140,6 +179,18 @@ const disconnectSource = (_send, message: Source): void => {
 
 const getAppStatus = (): void => {
   mainWindow?.webContents.send('appStatus', most!.appState)
+}
+
+const getSettings = (): void => {
+  mainWindow?.webContents.send('settingsUpdate', config)
+}
+
+const saveSettings = (_send, settings: Settings): void => {
+  const configPath = app.getPath('userData') + path.sep + 'config.json'
+  console.log('saving config')
+  fs.writeFileSync(configPath, JSON.stringify(settings))
+  app.relaunch()
+  app.exit()
 }
 
 const switchSource = (_send, message: SourceRecord): void => {

@@ -14,7 +14,7 @@ import { BrowserWindow } from 'electron'
 import { ErrorParser } from './utils/ErrorParser'
 import { Parser } from './utils/MessageParser'
 import { AppState, IoMostRx } from '../resources/GlobalTypes'
-import { JlrMain } from './utils/jlrSwitching/JlrMain'
+import { Settings } from './Types'
 
 export class Most extends EventEmitter {
   socket?: IoSocket
@@ -23,30 +23,36 @@ export class Most extends EventEmitter {
   errorParser: ErrorParser
   parser: Parser
   appState: number
+  settings: Settings
   address: null | string
 
-  constructor(win: BrowserWindow) {
+  constructor(win: BrowserWindow, settings: Settings) {
     super()
-    this.dgram = new Dgram()
     this.parser = new Parser()
     this.win = win
     this.address = null
     this.errorParser = new ErrorParser()
     this.appState = AppState.loading
+    this.settings = settings
     this.updateAppState(this.appState)
-    this.dgram.on('listening', () => {
-      this.updateAppState(AppState.waitingForServer)
-    })
-    this.dgram.on('close', () => {
-      console.log('dgram closed')
-    })
-    this.dgram.on('error', () => {
-      console.log('dgram error')
-    })
-    this.dgram.on('serverFound', (address: string) => {
-      this.address = address
-      this.createSocketIo(address)
-    })
+    if (this.settings.manualIp) {
+      this.createSocketIo(this.settings.ip)
+    } else {
+      this.dgram = new Dgram()
+      this.dgram.on('listening', () => {
+        this.updateAppState(AppState.waitingForServer)
+      })
+      this.dgram.on('close', () => {
+        console.log('dgram closed')
+      })
+      this.dgram.on('error', () => {
+        console.log('dgram error')
+      })
+      this.dgram.on('serverFound', (address: string) => {
+        this.address = address
+        this.createSocketIo(address)
+      })
+    }
 
     this.parser.on('registryComplete', (registry) => {
       this.win?.webContents.send('registryUpdate', registry)
@@ -59,7 +65,7 @@ export class Most extends EventEmitter {
 
   createSocketIo(address): void {
     this.socket = io(`ws://${address}:5556`)
-    this.updateAppState(AppState.connectingToSocket)
+    this.updateAppState(AppState.waitingForServer)
     this.socket.on('message', (message: SocketMostMessageRx) => {
       if (message.opType === 0x0f) {
         try {
