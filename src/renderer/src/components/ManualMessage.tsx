@@ -56,7 +56,6 @@ const ManualMessage: React.FC<Props> = ({ fBlock }) => {
   const [stream, setStream] = useState(false)
   const [sourceEntry, setSourceEntry] = useState(false)
   const [sourceDisc, setSourceDisc] = useState(false)
-  const [isSubscribed, setIsSubscribed] = useState(false)
 
   console.log(fBlock)
   const renderOpTypes = (): React.ReactElement[] => {
@@ -102,22 +101,6 @@ const ManualMessage: React.FC<Props> = ({ fBlock }) => {
     sendMessage(message)
   }
 
-  const toggleSubscription = (): void => {
-    const message: SocketMostSendMessage = {
-      targetAddressHigh: fBlock.targetAddressHigh,
-      targetAddressLow: fBlock.targetAddressLow,
-      fBlockID: fBlock.fBlockID,
-      instanceID: fBlock.instanceID,
-      fktID: 0x001,
-      opType: 0x00, // Set
-      data: isSubscribed ? [0x02, 0x01, 0x10] : [0x00, 0x01, 0x10] // TODO: remove hardcoded pimost address?
-    }
-
-    console.log(isSubscribed ? 'Unsubscribing' : 'Subscribing', 'by sending: ', message)
-    sendMessage(message)
-    setIsSubscribed(!isSubscribed)
-  }
-
   const renderBytes = (): React.ReactElement[] => {
     return Object.keys(bytes).map((key, index) => {
       return (
@@ -151,9 +134,6 @@ const ManualMessage: React.FC<Props> = ({ fBlock }) => {
         <Grid xs={12}>
           <Button variant={'outlined'} onClick={(): void => sendControlMessage(fktIDs)}>
             Get Functions
-          </Button>
-          <Button variant={'outlined'} onClick={(): void => toggleSubscription()}>
-            {isSubscribed ? 'Unsubscribe from notifications' : 'Subscribe to notifications'}
           </Button>
         </Grid>
         <Grid xs={2}>
